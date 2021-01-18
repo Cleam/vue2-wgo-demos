@@ -43,6 +43,7 @@ export default {
       },
     });
     this.initBoardEvent();
+    this.last();
   },
   watch: {
     inputValue(newValue, oldValue) {
@@ -59,49 +60,43 @@ export default {
       path.m = this.inputValue || 0;
       // 更新到指定路径
       this.kifuReader.goTo(path);
-
-      // 更新棋谱
-      this.board.update(this.kifuReader.change);
+      this.update();
     },
     first() {
       console.log('first');
       // this.dispatchUpdate();
       this.kifuReader.first();
-      this.board.update(this.kifuReader.change);
+      this.update();
     },
     multiPrev() {
       console.log('multiPrev');
       const p = WGo.clone(this.kifuReader.path);
       p.m -= 5;
       this.kifuReader.goTo(p);
-      this.board.update(this.kifuReader.change);
-      // this.dispatchUpdate();
+      this.update();
     },
     prev() {
       console.log('prev');
       this.kifuReader.previous();
-      this.board.update(this.kifuReader.change);
-      // this.dispatchUpdate();
+      this.update();
     },
     next() {
       console.log('next');
       this.kifuReader.next(this.kifuReader.node.children.length - 1);
-      this.board.update(this.kifuReader.change);
-      // this.dispatchUpdate();
+      this.update();
     },
     multiNext() {
       console.log('multiNext');
       const p = WGo.clone(this.kifuReader.path);
       p.m += 5;
       this.kifuReader.goTo(p);
-      this.board.update(this.kifuReader.change);
-      // this.dispatchUpdate();
+      this.update();
     },
     last() {
       console.log('last');
       // this.dispatchUpdate();
       this.kifuReader.last();
-      this.board.update(this.kifuReader.change);
+      this.update();
     },
     boardClick(x, y) {
       this.kifuReader.node.appendChild(
@@ -118,15 +113,13 @@ export default {
       this.kifuReader.next(this.kifuReader.node.children.length - 1);
       // console.log(this.kifuReader.change);
       // 更新棋谱
-      this.board.update(this.kifuReader.change);
-      console.log('********');
-      console.log(this.kifuReader.node.children);
-      // console.log(this.kifuReader);
-      // this.dispatchUpdate();
+      this.update();
     },
-    dispatchUpdate() {
-      console.log(this.$bus);
-      this.$bus.$emit('update-m');
+    update() {
+      // 更新计数器
+      this.inputValue = this.kifuReader.path.m;
+      // 更新棋谱
+      this.board.update(this.kifuReader.change);
     },
     initBoardEvent() {
       // 添加鼠标点击事件
