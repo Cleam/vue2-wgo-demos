@@ -152,13 +152,15 @@ var exec_previous = function() {
 
 var exec_first = function() {
   //if(!this.node.parent) return;
-
+  // 删除所有位置信息
   this.game.firstPosition();
+  // 重新读取初始node
   this.node = this.kifu.root;
-
+  // path从0开始
   this.path = { m: 0 };
 
   if (this.kifu.info['HA'] && this.kifu.info['HA'] > 1) this.game.turn = WGo.W;
+  // 计算出需要增删的棋子
   this.change = exec_node(this.game, this.node, true);
 };
 
