@@ -183,7 +183,9 @@ export default {
       add = add.filter(s => !(s._captrued && s._m <= kr.path.m));
       this.board.addObject(add);
       this.clickStack = add;
-      this.clickLastIndex = this.clickStack.length;
+      if (this.clickStack.length > 0) {
+        this.clickLastIndex = parseInt(this.clickStack[0].text);
+      }
       // 更新计数器
       this.inputValue = this.kifuReader.path.m;
     },
