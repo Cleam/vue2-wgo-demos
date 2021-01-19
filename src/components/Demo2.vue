@@ -5,11 +5,11 @@
       <hr />
       <div class="ctrl-wrap">
         <button @click="first">开始位置</button>
-        <button @click="goTo(-10)">后退10步</button>
+        <button @click="multiPrev">后退10步</button>
         <button @click="prev">后退1步</button>
         <input v-model="inputValue" type="number" />
         <button @click="next">前进1步</button>
-        <button @click="goTo(10)">前进10步</button>
+        <button @click="multiNext">前进10步</button>
         <button @click="last">最后一步</button>
       </div>
       <hr />
@@ -31,14 +31,16 @@ export default {
     this.clickLastIndex = 0;
     this.init();
   },
-  // watch: {
-  //   inputValue(newValue, oldValue) {
-  //     if (newValue !== oldValue) {
-  //       // console.log(newValue, oldValue);
-  //       this.goTo(newValue);
-  //     }
-  //   },
-  // },
+  watch: {
+    inputValue(val, oldVal) {
+      oldVal = parseInt(oldVal);
+      val = parseInt(val);
+      if (oldVal !== val) {
+        console.log('val', val);
+        this.goTo(val);
+      }
+    },
+  },
   methods: {
     init() {
       const kf = Kifu.fromSgf(
@@ -101,11 +103,26 @@ export default {
       this.kifuReader.last();
       this.update();
     },
-    goTo(m) {
+    multiPrev() {
       const p = WGo.clone(this.kifuReader.path);
-      p.m += m;
+      p.m -= 10;
+      this.goTo(p);
+    },
+    multiNext() {
+      const p = WGo.clone(this.kifuReader.path);
+      p.m += 10;
+      this.goTo(p);
+    },
+    goTo(move) {
+      let path;
+      if (typeof move == 'number') {
+        path = WGo.clone(this.kifuReader.path);
+        path.m = move || 0;
+      } else {
+        path = move;
+      }
       // console.log('multiPrev');
-      this.kifuReader.goTo(p);
+      this.kifuReader.goTo(path);
       this.update();
     },
     prev() {
@@ -139,8 +156,6 @@ export default {
       this.next();
     },
     update() {
-      // 更新计数器
-      this.inputValue = this.kifuReader.path.m;
       // 更新棋谱
       const kr = this.kifuReader;
       // update board's position
@@ -153,11 +168,10 @@ export default {
         add = add.concat(krNode.markup);
         krNode = krNode.parent;
       }
-      // 删除已经吃掉的棋子
+      // 标记已经吃掉的棋子
       if (kr.change && kr.change.remove.length > 0) {
         for (let i = 0; i < add.length; i++) {
           kr.change.remove.forEach(rm => {
-            console.log('>>>>>>', rm, add[i]);
             if (rm.x == add[i].x && rm.y == add[i].y) {
               add[i]._captrued = true;
               add[i]._m = kr.path.m;
@@ -170,6 +184,8 @@ export default {
       this.board.addObject(add);
       this.clickStack = add;
       this.clickLastIndex = this.clickStack.length;
+      // 更新计数器
+      this.inputValue = this.kifuReader.path.m;
     },
     initBoardEvent() {
       // 添加鼠标点击事件
